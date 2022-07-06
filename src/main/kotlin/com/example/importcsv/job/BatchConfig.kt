@@ -1,7 +1,7 @@
 package com.example.importcsv.job
 
-import com.example.importcsv.`in`.TaskDetailCsv
-import com.example.importcsv.out.TaskDetailRecord
+import com.example.importcsv.input.TaskDetailCsv
+import com.example.importcsv.output.TaskDetailRecord
 import com.example.importcsv.processor.ImportCsvProcessor
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -36,7 +36,7 @@ class BatchConfig(
     @Bean
     fun importStep1(writer: JdbcBatchItemWriter<TaskDetailRecord>): Step {
         return stepBuilderFactory["step01"]
-            .chunk<TaskDetailCsv, TaskDetailRecord>(10)
+            .chunk<TaskDetailCsv, TaskDetailRecord>(5)
             .reader(importCsvReader())
             .processor(importCsvProcessor())
             .writer(writer)

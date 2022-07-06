@@ -1,4 +1,4 @@
-package com.example.importcsv
+package com.example.importcsv.`in`
 
 //TODO Nullableかつ初期値NULLにしないとinitできなくて落ちる？
 data class TaskDetailCsv(

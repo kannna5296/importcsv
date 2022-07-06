@@ -1,5 +1,7 @@
-package com.example.importcsv
+package com.example.importcsv.processor
 
+import com.example.importcsv.`in`.TaskDetailCsv
+import com.example.importcsv.out.TaskDetailRecord
 import org.springframework.batch.item.ItemProcessor
 import java.time.LocalDate
 import java.time.OffsetDateTime

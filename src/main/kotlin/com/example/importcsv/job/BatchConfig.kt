@@ -1,5 +1,8 @@
-package com.example.importcsv
+package com.example.importcsv.job
 
+import com.example.importcsv.`in`.TaskDetailCsv
+import com.example.importcsv.out.TaskDetailRecord
+import com.example.importcsv.processor.ImportCsvProcessor
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory

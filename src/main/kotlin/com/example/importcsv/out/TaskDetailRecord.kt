@@ -1,4 +1,4 @@
-package com.example.importcsv
+package com.example.importcsv.out
 
 import java.time.LocalDate
 import java.time.OffsetDateTime

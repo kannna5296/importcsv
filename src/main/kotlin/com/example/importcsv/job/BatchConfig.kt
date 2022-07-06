@@ -19,12 +19,16 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.transaction.PlatformTransactionManager
 import javax.sql.DataSource
+
 
 @Configuration
 class BatchConfig(
     private val jobBuilderFactory: JobBuilderFactory,
-    private val stepBuilderFactory: StepBuilderFactory
+    private val stepBuilderFactory: StepBuilderFactory,
+    private val transactionManager: DataSourceTransactionManager,
 ) {
 
     @Bean
@@ -38,7 +42,9 @@ class BatchConfig(
 
     @Bean
     fun importStep1(writer: JdbcBatchItemWriter<TaskDetailRecord>): Step {
+        transactionManager.isRollbackOnCommitFailure = true
         return stepBuilderFactory["step01"]
+            .transactionManager(transactionManager)
             .chunk<TaskDetailCsv, TaskDetailRecord>(3)
             .reader(importCsvReader())
             .processor(importCsvProcessor())

@@ -8,14 +8,14 @@ import org.springframework.batch.test.context.SpringBatchTest
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 
-@SpringBatchTest
-@RunWith(SpringRunner::class)
-@ContextConfiguration(classes = [BatchJob::class])
-class BatchJobTest {
-
-    @Test
-    fun `正常系1件`() {
-        val input = "test"
-        assertEquals("test",input)
-    }
-}
+//@SpringBatchTest
+//@RunWith(SpringRunner::class)
+//@ContextConfiguration(classes = [BatchJob::class])
+//class BatchJobTest {
+//
+//    @Test
+//    fun `正常系1件`() {
+//        val input = "test"
+//        assertEquals("test",input)
+//    }
+//}

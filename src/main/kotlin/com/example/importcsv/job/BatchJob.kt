@@ -27,6 +27,7 @@ import javax.sql.DataSource
 class BatchJob(
     private val jobBuilderFactory: JobBuilderFactory,
     private val stepBuilderFactory: StepBuilderFactory,
+    private val importCsvStepExecutionListener: ImportCsvStepExecutionListener
 ) {
 
     @Bean
@@ -50,7 +51,7 @@ class BatchJob(
             .skipLimit(Int.MAX_VALUE)
             .noRollback(Exception::class.java)
             .listener(ImportCsvChunkListener())
-            .listener(ImportCsvStepExecutionListener())
+            .listener(importCsvStepExecutionListener)
             .build()
     }
 

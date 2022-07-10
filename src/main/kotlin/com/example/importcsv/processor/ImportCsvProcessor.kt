@@ -42,7 +42,7 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
     }
 
     @OnProcessError
-    private fun onProcess(input: TaskDetailCsv, ex: BatchException) {
+    private fun onProcess(input: TaskDetailCsv, ex: Exception) {
         jdbcTemplate.update("INSERT INTO task_import_error (task_id, user_id, error) VALUES (1, ?, ?)", input.userId, ex.message)
     }
 }

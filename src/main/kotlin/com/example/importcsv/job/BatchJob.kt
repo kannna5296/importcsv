@@ -3,6 +3,7 @@ package com.example.importcsv.job
 import com.example.importcsv.input.TaskDetailCsv
 import com.example.importcsv.listener.ImportCsvChunkListener
 import com.example.importcsv.listener.ImportCsvJobListener
+import com.example.importcsv.listener.ImportCsvStepExecutionListener
 import com.example.importcsv.output.TaskDetailRecord
 import com.example.importcsv.processor.ImportCsvProcessor
 import org.springframework.batch.core.Job
@@ -19,16 +20,13 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
-import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.transaction.PlatformTransactionManager
 import javax.sql.DataSource
 
 
 @Configuration
-class BatchConfig(
+class BatchJob(
     private val jobBuilderFactory: JobBuilderFactory,
     private val stepBuilderFactory: StepBuilderFactory,
-    private val transactionManager: DataSourceTransactionManager,
 ) {
 
     @Bean
@@ -42,14 +40,13 @@ class BatchConfig(
 
     @Bean
     fun importStep1(writer: JdbcBatchItemWriter<TaskDetailRecord>): Step {
-        transactionManager.isRollbackOnCommitFailure = true
         return stepBuilderFactory["step01"]
-            .transactionManager(transactionManager)
-            .chunk<TaskDetailCsv, TaskDetailRecord>(3)
+            .chunk<TaskDetailCsv, TaskDetailRecord>(10)
             .reader(importCsvReader())
             .processor(importCsvProcessor())
             .writer(writer)
             .listener(ImportCsvChunkListener())
+            .listener(ImportCsvStepExecutionListener())
             .build()
     }
 

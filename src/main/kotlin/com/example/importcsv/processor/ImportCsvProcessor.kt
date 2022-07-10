@@ -1,9 +1,10 @@
 package com.example.importcsv.processor
 
 import com.example.importcsv.input.TaskDetailCsv
-import com.example.importcsv.exception.ImportBatchException
+import com.example.importcsv.exception.BatchException
 import com.example.importcsv.input.AppUser
 import com.example.importcsv.output.TaskDetailRecord
+import org.springframework.batch.core.annotation.OnProcessError
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.BeanPropertyRowMapper
@@ -21,16 +22,15 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
 
     override fun process(input: TaskDetailCsv): TaskDetailRecord? {
 
-        try {
             //必須要件チェック
-            if (input.userId.isNullOrEmpty()) throw ImportBatchException("ユーザIDを入力してください")
-            if (input.content.isNullOrEmpty()) throw ImportBatchException("タスク詳細を入力してください")
-            if (input.deadline.isNullOrEmpty()) throw ImportBatchException("有効期限を入力してください")
+            if (input.userId.isNullOrEmpty()) throw BatchException("ユーザIDを入力してください")
+            if (input.content.isNullOrEmpty()) throw BatchException("タスク詳細を入力してください")
+            if (input.deadline.isNullOrEmpty()) throw BatchException("有効期限を入力してください")
 
             //アプリユーザ存在チェック
             val appUserRowMapper = BeanPropertyRowMapper<AppUser>(AppUser::class.java)
             val user = jdbcTemplate.query("SELECT * FROM app_user WHERE id = ?", appUserRowMapper, input.userId)
-            if (user.isEmpty()) throw ImportBatchException("ユーザが存在しません")
+            if (user.isEmpty()) throw BatchException("ユーザが存在しません")
 
             return TaskDetailRecord(
                 taskId = 1, //仮で固定
@@ -39,10 +39,10 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
                 deadline = LocalDate.parse(input.deadline, formatter),
                 createdAt = OffsetDateTime.now()
             )
+    }
 
-        } catch (ex: ImportBatchException) {
-            println(ex)
-            return null //スキップ
-        }
+    @OnProcessError
+    private fun onProcess(input: TaskDetailCsv, ex: BatchException) {
+        jdbcTemplate.update("INSERT INTO task_import_error (task_id, user_id, error) VALUES (1, ?, ?)", input.userId, ex.message)
     }
 }

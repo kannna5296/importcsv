@@ -15,3 +15,10 @@ CREATE TABLE task_detail (
    deadline DATE NOT NULL,
    created_at DATETIME NOT NULL
 );
+
+CREATE TABLE task_import_error (
+   ID INT auto_increment primary key,
+   task_id INT NOT NULL,
+   user_id INT NOT NULL,
+   error NVARCHAR(255) NOT NULL
+);

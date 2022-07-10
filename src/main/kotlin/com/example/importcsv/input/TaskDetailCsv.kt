@@ -1,6 +1,5 @@
 package com.example.importcsv.input
 
-//TODO Nullableかつ初期値NULLにしないとinitできなくて落ちる？
 data class TaskDetailCsv(
     //割り当てるユーザ
     var userId: String? = null,

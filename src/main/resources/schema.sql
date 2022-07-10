@@ -19,6 +19,6 @@ CREATE TABLE task_detail (
 CREATE TABLE task_import_error (
    ID INT auto_increment primary key,
    task_id INT NOT NULL,
-   user_id INT NOT NULL,
+   user_id VARCHAR(255) NOT NULL,
    error NVARCHAR(255) NOT NULL
 );

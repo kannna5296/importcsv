@@ -1,8 +1,6 @@
 package com.example.importcsv.job
 
 import com.example.importcsv.input.TaskDetailCsv
-import com.example.importcsv.listener.ImportCsvChunkListener
-import com.example.importcsv.listener.ImportCsvJobListener
 import com.example.importcsv.listener.ImportCsvStepExecutionListener
 import com.example.importcsv.output.TaskDetailRecord
 import com.example.importcsv.processor.ImportCsvProcessor
@@ -10,6 +8,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.launch.support.RunIdIncrementer
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider
 import org.springframework.batch.item.database.JdbcBatchItemWriter
@@ -34,7 +33,6 @@ class BatchJob(
     fun importJob(step: Step): Job {
         return jobBuilderFactory["job01"]
             .incrementer(RunIdIncrementer())
-            .listener(ImportCsvJobListener())
             .start(step)
             .build()
     }
@@ -44,13 +42,12 @@ class BatchJob(
         return stepBuilderFactory["step01"]
             .chunk<TaskDetailCsv, TaskDetailRecord>(10)
             .reader(importCsvReader())
-            .processor(importCsvProcessor())
+            .processor(processor())
             .writer(writer)
             .faultTolerant()
             .skip(Exception::class.java)
             .skipLimit(Int.MAX_VALUE)
             .noRollback(Exception::class.java)
-            .listener(ImportCsvChunkListener())
             .listener(importCsvStepExecutionListener)
             .build()
     }
@@ -72,7 +69,8 @@ class BatchJob(
     }
 
     @Bean
-    fun importCsvProcessor(): ImportCsvProcessor {
+    @StepScope
+    fun processor(): ImportCsvProcessor {
         return ImportCsvProcessor()
     }
 

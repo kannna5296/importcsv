@@ -25,7 +25,7 @@ class ImportCsvStepExecutionListener: StepExecutionListener {
         val taskId = stepExecution.jobParameters.getString("taskId")
 
         //エラー時は全ROLLBACK
-        if (stepExecution.processSkipCount != 0) {
+        if (stepExecution.exitStatus.exitCode == "FAILED") {
             jdbcTemplate.update("DELETE FROM task_detail WHERE task_id = ?", taskId)
             println("Step終了")
         }

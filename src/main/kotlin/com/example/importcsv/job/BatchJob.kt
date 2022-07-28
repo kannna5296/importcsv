@@ -1,5 +1,6 @@
 package com.example.importcsv.job
 
+import com.example.importcsv.exception.BatchException
 import com.example.importcsv.input.TaskDetailCsv
 import com.example.importcsv.listener.ImportCsvStepExecutionListener
 import com.example.importcsv.output.TaskDetailRecord
@@ -45,9 +46,9 @@ class BatchJob(
             .processor(processor())
             .writer(writer)
             .faultTolerant()
-            .skip(Exception::class.java)
+            .skip(BatchException::class.java)
             .skipLimit(Int.MAX_VALUE)
-            .noRollback(Exception::class.java)
+            .noRollback(BatchException::class.java)
             .listener(importCsvStepExecutionListener)
             .build()
     }

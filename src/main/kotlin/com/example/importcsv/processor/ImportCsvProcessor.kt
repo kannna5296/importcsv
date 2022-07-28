@@ -49,8 +49,8 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
             throw BatchException("有効期限の形式が不正です")
         }
 
-        //アプリユーザ存在チェック
-        val appUser = appUserRepository.findByIdOrNull(userIdInt) ?: throw BatchException("ユーザが存在しません")
+        //ユーザ存在チェック
+        appUserRepository.findByIdOrNull(userIdInt) ?: throw BatchException("ユーザが存在しません")
 
         return TaskDetailRecord(
             taskId = 1, //仮で固定

@@ -27,7 +27,7 @@ import javax.sql.DataSource
 class BatchJob(
     private val jobBuilderFactory: JobBuilderFactory,
     private val stepBuilderFactory: StepBuilderFactory,
-    private val importCsvStepExecutionListener: ImportCsvStepExecutionListener
+    private val importCsvStepExecutionListener: ImportCsvStepExecutionListener,
 ) {
 
     @Bean

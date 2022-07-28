@@ -2,15 +2,16 @@ package com.example.importcsv.processor
 
 import com.example.importcsv.input.TaskDetailCsv
 import com.example.importcsv.exception.BatchException
-import com.example.importcsv.input.AppUser
+import com.example.importcsv.infra.jpa.entity.TaskImportErrorEntity
+import com.example.importcsv.infra.jpa.repository.AppUserRepository
+import com.example.importcsv.infra.jpa.repository.TaskImportErrorRepository
 import com.example.importcsv.output.TaskDetailRecord
 import org.springframework.batch.core.annotation.OnProcessError
-import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Scope
-import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -22,10 +23,13 @@ import java.time.format.DateTimeParseException
 class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
 
     @Value("#{jobParameters['taskId']}")
-    private val taskId: String? = null
+    private val taskId: Int? = null
 
     @Autowired
-    lateinit var jdbcTemplate: JdbcTemplate
+    lateinit var appUserRepository: AppUserRepository
+
+    @Autowired
+    lateinit var taskImportErrorRepository: TaskImportErrorRepository
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
@@ -46,8 +50,7 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
         }
 
         //アプリユーザ存在チェック
-        val user = jdbcTemplate.query("SELECT * FROM app_user WHERE id = ?", AppUser.appUserRowMapper, userIdInt)
-        if (user.isEmpty()) throw BatchException("ユーザが存在しません")
+        val appUser = appUserRepository.findByIdOrNull(userIdInt) ?: throw BatchException("ユーザが存在しません")
 
         return TaskDetailRecord(
             taskId = 1, //仮で固定
@@ -60,6 +63,11 @@ class ImportCsvProcessor: ItemProcessor<TaskDetailCsv, TaskDetailRecord> {
 
     @OnProcessError
     private fun onProcess(input: TaskDetailCsv, ex: Exception) {
-        jdbcTemplate.update("INSERT INTO task_import_error (task_id, user_id, error) VALUES (?, ?, ?)", taskId, input.userId, ex.message)
+        val taskImportErrorEntity = TaskImportErrorEntity(
+            taskId = taskId,
+            userId = input.userId,
+            error =ex.message
+        )
+        taskImportErrorRepository.saveAndFlush(taskImportErrorEntity)
     }
 }

@@ -1,19 +1,18 @@
 package com.example.importcsv.listener
 
+import com.example.importcsv.infra.jpa.repository.TaskDetailRepository
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.StepExecutionListener
-import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
+import java.lang.Exception
 
 @Component
 class ImportCsvStepExecutionListener: StepExecutionListener {
 
     @Autowired
-    lateinit var jdbcTemplate: JdbcTemplate
+    lateinit var taskDetailRepository: TaskDetailRepository
 
     override fun beforeStep(stepExecution: StepExecution) {
         println("Step開始$stepExecution")
@@ -22,11 +21,11 @@ class ImportCsvStepExecutionListener: StepExecutionListener {
 
     override fun afterStep(stepExecution: StepExecution): ExitStatus? {
         println("Step終了$stepExecution")
-        val taskId = stepExecution.jobParameters.getString("taskId")
+        val taskId = stepExecution.jobParameters.getString("taskId") ?: throw Exception("")
 
         //エラー時は全ROLLBACK
         if (stepExecution.exitStatus.exitCode == "FAILED") {
-            jdbcTemplate.update("DELETE FROM task_detail WHERE task_id = ?", taskId)
+            taskDetailRepository.deleteByTaskId(taskId.toInt())
             println("Step終了")
         }
         return ExitStatus.COMPLETED
